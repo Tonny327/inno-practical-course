@@ -1,10 +1,14 @@
 package com.innowise;
 
-import java.util.LinkedList;
+import com.innowise.LinkedList;
 
 public class Main {
     public static void main(String[] args) {
         LinkedList<String> list = new LinkedList<>();
-        System.out.println("Hello world!");
+        list.addLast("A");
+        list.addLast("B");
+        list.addLast("C");
+        list.addLast("D");
+        System.out.println(list);
     }
 }
