@@ -1,28 +1,28 @@
 # CustomLinkedList
 
-Реализация двусвязного списка на Java с поддержкой базовых операций вставки, удаления, поиска и доступа по индексу.
+A Java implementation of a doubly linked list supporting basic operations such as insertion, deletion, search, and indexed access.
 
-## Структура проекта
+## Project Structure
 
-- `LinkedList.java` — основная реализация двусвязного списка
-- `LinkedListTest.java` — unit-тесты на JUnit 5
-- `pom.xml` — конфигурация Maven
+- `LinkedList.java` — core implementation of the doubly linked list
+- `LinkedListTest.java` — unit tests written with JUnit 5
+- `pom.xml` — Maven configuration file
 
-## Основные возможности
+## Key Features
 
-- `addFirst(T value)` — вставка в начало
-- `addLast(T value)` — вставка в конец
-- `add(int index, T value)` — вставка по индексу
-- `removeByValue(T value)` — удаление по значению
-- `remove(int index)` — удаление по индексу
-- `get(int index)` — доступ по индексу
-- `getFirst()` / `getLast()` — доступ к краям
-- `size()` — текущий размер списка
-- `toString()` — читаемый вывод структуры
+- `addFirst(T value)` — insert at the beginning
+- `addLast(T value)` — insert at the end
+- `add(int index, T value)` — insert at a specific index
+- `removeByValue(T value)` — remove by value
+- `remove(int index)` — remove by index
+- `get(int index)` — access by index
+- `getFirst()` / `getLast()` — access first or last element
+- `size()` — current size of the list
+- `toString()` — readable string representation of the list
 
-## Тестирование
+## Testing
 
-Для запуска тестов:
+To run the tests:
 
 ```bash
 cd CustomLinkedList

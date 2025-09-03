@@ -2,10 +2,24 @@ package com.innowise;
 
 import java.util.Objects;
 
+/**
+ * A custom implementation of a doubly linked list.
+ * Supports insertion, deletion, search, and indexed access.
+ * This list maintains references to both head and tail nodes,
+ * allowing efficient operations at both ends.
+ *
+ * @param <T> the type of elements stored in the list
+ */
+
 public class LinkedList<T> {
     private Node<T> head;
     private Node<T> tail;
 
+    /**
+     * Inserts the specified value at the beginning of the list.
+     *
+     * @param value the value to insert
+     */
     public void addFirst(T value){
         Node<T> newNode = new Node<>(value);
         newNode.next = head;
@@ -17,6 +31,11 @@ public class LinkedList<T> {
         head = newNode;
     }
 
+    /**
+     * Inserts the specified value at the end of the list.
+     *
+     * @param value the value to insert
+     */
     public  void addLast(T value){
         Node<T> newNode = new Node<>(value);
         if (tail == null){
@@ -28,6 +47,13 @@ public class LinkedList<T> {
         tail = newNode;
     }
 
+    /**
+     * Inserts the specified value at the given index.
+     *
+     * @param index the position to insert at
+     * @param value the value to insert
+     * @throws IndexOutOfBoundsException if index is out of range
+     */
     public void add(int index, T value){
         if (index < 0 || index > size()) throw new IndexOutOfBoundsException();
         if (index == 0) {
@@ -54,6 +80,12 @@ public class LinkedList<T> {
         currentNode.prev = newNode;
     }
 
+    /**
+     * Returns the index of the first occurrence of the specified value.
+     *
+     * @param value the value to search for
+     * @return the index of the value, or -1 if not found
+     */
     public int indexOf(T value){
         Node<T> currentNode = head;
         int index = 0;
@@ -67,6 +99,13 @@ public class LinkedList<T> {
         return -1;
     }
 
+    /**
+     * Returns the value at the specified index.
+     *
+     * @param index the position to retrieve
+     * @return the value at the given index
+     * @throws IndexOutOfBoundsException if index is out of range
+     */
     public T get(int index) {
         if (index < 0 || index >= size()) throw new IndexOutOfBoundsException();
         Node<T> currentNode = head;
@@ -76,16 +115,33 @@ public class LinkedList<T> {
         return currentNode.value;
     }
 
+    /**
+     * Returns the first element in the list.
+     *
+     * @return the first value
+     * @throws IllegalStateException if the list is empty
+     */
     public T getFirst(){
         if (head == null)throw new IllegalStateException("List is empty");
         return head.value;
     }
 
+    /**
+     * Returns the last element in the list.
+     *
+     * @return the last value
+     * @throws IllegalStateException if the list is empty
+     */
     public T getLast() {
         if (tail == null) throw new IllegalStateException("List is empty");
         return tail.value;
     }
 
+    /**
+     * Removes the first occurrence of the specified value from the list.
+     *
+     * @param value the value to remove
+     */
     public void removeByValue(T value) {
         Node<T> currentNode = head;
         while (currentNode != null){
@@ -108,6 +164,13 @@ public class LinkedList<T> {
         }
     }
 
+    /**
+     * Removes the element at the specified index.
+     *
+     * @param index the position to remove
+     * @return the removed value
+     * @throws IndexOutOfBoundsException if index is out of range
+     */
     public T remove(int index){
         if (index < 0 || index >= size()) throw new IndexOutOfBoundsException();
         if (index == 0) return removeFirst();
@@ -127,6 +190,12 @@ public class LinkedList<T> {
         return currentNode.value;
     }
 
+    /**
+     * Removes and returns the first element in the list.
+     *
+     * @return the removed value
+     * @throws IllegalStateException if the list is empty
+     */
     public T removeFirst() {
         if (head == null) throw new IllegalStateException("List is empty");
         T value = head.value;
@@ -139,6 +208,12 @@ public class LinkedList<T> {
         return value;
     }
 
+    /**
+     * Removes and returns the last element in the list.
+     *
+     * @return the removed value
+     * @throws IllegalStateException if the list is empty
+     */
     public T removeLast() {
         if (tail == null) throw new IllegalStateException("List is empty");
         T value = tail.value;
@@ -151,6 +226,11 @@ public class LinkedList<T> {
         return value;
     }
 
+    /**
+     * Returns the number of elements in the list.
+     *
+     * @return the size of the list
+     */
     public int size() {
         int count = 0;
         Node<T> currentNode = head;
@@ -161,6 +241,13 @@ public class LinkedList<T> {
         return count;
     }
 
+
+    /**
+     * Compares this list to another for equality based on element values.
+     *
+     * @param o the object to compare with
+     * @return true if both lists contain the same elements in order
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -178,6 +265,11 @@ public class LinkedList<T> {
         return nodeA == null && nodeB == null;
     }
 
+    /**
+     * Returns a hash code based on the list's contents.
+     *
+     * @return the hash code
+     */
     @Override
     public int hashCode() {
         int result =1;
@@ -189,6 +281,11 @@ public class LinkedList<T> {
         return result;
     }
 
+    /**
+     * Returns a string representation of the list.
+     *
+     * @return a readable format of the list contents
+     */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder("LinkedList{");
@@ -204,9 +301,23 @@ public class LinkedList<T> {
         return builder.toString();
     }
 
+    /**
+     * Internal node class used to store list elements and links.
+     *
+     * @param <T> the type of value stored
+     */
     private static class Node<T>{
+        /**
+         * The value stored in this node.
+         */
         private final T value;
+        /**
+         * Reference to the next node.
+         */
         private Node<T> next;
+        /**
+         * Reference to the previous node.
+         */
         private Node<T> prev;
 
         public Node(T value){

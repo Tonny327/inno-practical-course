@@ -1,6 +1,6 @@
 package com.innowise;
 
-import com.innowise.LinkedList;
+import java.util.LinkedList;
 
 public class Main {
     public static void main(String[] args) {

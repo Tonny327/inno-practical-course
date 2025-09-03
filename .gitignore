@@ -1,0 +1,29 @@
+# IDE files
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.vscode/
+
+# Build output
+/target/
+target/surefire-reports/
+target/maven-status/
+target/generated-sources/
+target/generated-test-sources/
+
+# Logs and temp
+*.log
+*.tmp
+*.swp
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Maven wrapper (if unused)
+.mvn/
+
+
+
