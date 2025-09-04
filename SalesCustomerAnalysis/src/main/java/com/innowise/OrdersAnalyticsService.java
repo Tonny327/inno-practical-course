@@ -30,6 +30,18 @@ public class OrdersAnalyticsService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
+    public String getMostPopularProduct(List<Order> orders){
+        Map<String, Integer> productQuantities = orders.stream()
+                .filter(order -> order.getStatus() == OrderStatus.DELIVERED)
+                .flatMap(order -> order.getItems().stream())
+                .collect(Collectors.groupingBy(OrderItem::getProductName,
+                        Collectors.summingInt(OrderItem::getQuantity)));
+
+        return productQuantities.entrySet().stream()
+                .max(Comparator.comparingInt(Map.Entry::getValue))
+                .map(Map.Entry::getKey).orElse(null);
+    }
+
 
 
 
