@@ -42,7 +42,21 @@ public class OrdersAnalyticsService {
                 .map(Map.Entry::getKey).orElse(null);
     }
 
+    public BigDecimal getAverageCheckForDeliveredOrders(List<Order> orders) {
+        List<BigDecimal> orderTotals = orders.stream()
+                .filter(order -> order.getStatus() == OrderStatus.DELIVERED)
+                .map(order -> order.getItems().stream()
+                        .map(item -> BigDecimal.valueOf(item.getQuantity()).multiply(BigDecimal.valueOf(item.getPrice())))
+                        .reduce(BigDecimal.ZERO, BigDecimal::add))
+                .filter(total -> total.compareTo(BigDecimal.ZERO) > 0)
+                .collect(Collectors.toList());
 
+        if (orderTotals.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
 
+        BigDecimal sum = orderTotals.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+        return sum.divide(BigDecimal.valueOf(orderTotals.size()), 2, RoundingMode.HALF_UP);
+    }
 
 }
