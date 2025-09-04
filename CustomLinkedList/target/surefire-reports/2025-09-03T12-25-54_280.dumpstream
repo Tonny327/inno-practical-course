@@ -1,5 +1,0 @@
-# Created at 2025-09-03T12:25:58.507
-Boot Manifest-JAR contains absolute paths in classpath 'D:\interships\Innowise-intership\inno-practical-course\CustomLinkedList\target\test-classes'
-Hint: <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
-'other' has different root
-
