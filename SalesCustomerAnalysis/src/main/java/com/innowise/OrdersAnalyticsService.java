@@ -59,4 +59,17 @@ public class OrdersAnalyticsService {
         return sum.divide(BigDecimal.valueOf(orderTotals.size()), 2, RoundingMode.HALF_UP);
     }
 
+    public List<Customer> getCustomersWithMoreThanFiveOrders(List<Order> orders) {
+        Map<Customer, Long> customerOrderCounts = orders.stream()
+                .collect(Collectors.groupingBy(
+                        Order::getCustomer,
+                        Collectors.counting()
+                ));
+
+        return customerOrderCounts.entrySet().stream()
+                .filter(entry -> entry.getValue() > 5)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+    }
+
 }
