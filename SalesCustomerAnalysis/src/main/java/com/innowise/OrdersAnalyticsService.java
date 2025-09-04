@@ -22,5 +22,15 @@ public class OrdersAnalyticsService {
                 .distinct().collect(Collectors.toList());
     }
 
+    public BigDecimal getTotalIncomeForCompletedOrders(List<Order> orders){
+        return orders.stream()
+                .filter(order -> order.getStatus() == OrderStatus.DELIVERED)
+                .flatMap(order -> order.getItems().stream())
+                .map(item -> BigDecimal.valueOf(item.getQuantity()).multiply(BigDecimal.valueOf(item.getPrice())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+
+
 
 }
