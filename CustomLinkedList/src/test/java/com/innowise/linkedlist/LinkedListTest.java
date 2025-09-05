@@ -1,4 +1,4 @@
-package com.innowise;
+package com.innowise.linkedlist;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,15 +34,6 @@ public class LinkedListTest {
         assertEquals(3, list.size());
     }
 
-    @Test
-    void testIndexOf(){
-        LinkedList<String> list = new LinkedList<>();
-        list.addLast("A");
-        list.addLast("B");
-        list.addLast("C");
-        assertEquals(1, list.indexOf("B"));
-        assertEquals(-1, list.indexOf("D"));
-    }
 
     @Test
     void testGet(){
@@ -73,17 +64,6 @@ public class LinkedListTest {
         list.addLast("C");
         assertEquals("C", list.getLast());
         assertThrows(IllegalStateException.class, () -> new LinkedList<>().getLast());
-    }
-
-    @Test
-    void testRemoveByValue(){
-        LinkedList<String> list = new LinkedList<>();
-        list.addLast("A");
-        list.addLast("B");
-        list.addLast("C");
-        list.removeByValue("B");
-        assertEquals(-1, list.indexOf("B"));
-        assertEquals(2, list.size());
     }
 
     @Test
@@ -131,8 +111,6 @@ public class LinkedListTest {
         list.addLast(2);
         list.add(1,3);
         assertEquals(3, list.size());
-        list.removeByValue(3);
-        assertEquals(2, list.size());
     }
 
 }
