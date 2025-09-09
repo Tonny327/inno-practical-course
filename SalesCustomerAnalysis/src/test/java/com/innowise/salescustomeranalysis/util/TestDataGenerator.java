@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.math.BigDecimal;
 
 /**
  * Utility class for generating sample and extended test data for the sales and order analytics
@@ -51,7 +52,7 @@ public class TestDataGenerator {
    */
   public static OrderItem createOrderItem(String name, int quantity, double price,
       Category category) {
-    return new OrderItem(name, quantity, price, category);
+    return new OrderItem(name, quantity, BigDecimal.valueOf(price), category);
   }
 
   /**
@@ -156,7 +157,7 @@ public class TestDataGenerator {
         createOrderItem("Shoes", 1, 70, Category.CLOTHING)));
     orders.add(createOrder("E2", customer8, OrderStatus.DELIVERED,
         createOrderItem("Shoes", 2, 70, Category.CLOTHING)));
-    orders.add(createOrder("E3", customer8, OrderStatus.DELIVERED)); // пустой заказ
+    orders.add(createOrder("E3", customer8, OrderStatus.DELIVERED));
     orders.add(createOrder("E4", customer8, OrderStatus.SHIPPED,
         createOrderItem("Tablet", 1, 300, Category.ELECTRONICS)));
 

@@ -1,6 +1,7 @@
 package com.innowise.salescustomeranalysis.model;
 
 import lombok.*;
+import java.math.BigDecimal;
 
 /**
  * Represents a single item within a customer's order.
@@ -25,7 +26,7 @@ public class OrderItem {
   /**
    * Price of a single unit of the product.
    */
-  private double price;
+  private BigDecimal price;
 
   /**
    * Category of the product.

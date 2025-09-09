@@ -51,10 +51,10 @@ public class OrdersAnalyticsService {
      */
     public BigDecimal getTotalIncomeForCompletedOrders(List<Order> orders){
         return orders.stream()
-                .filter(order -> order.getStatus() == OrderStatus.DELIVERED)
-                .flatMap(order -> order.getItems().stream())
-                .map(item -> BigDecimal.valueOf(item.getQuantity()).multiply(BigDecimal.valueOf(item.getPrice())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            .filter(order -> order.getStatus() == OrderStatus.DELIVERED)
+            .flatMap(order -> order.getItems().stream())
+            .map(item -> BigDecimal.valueOf(item.getQuantity()).multiply(item.getPrice()))
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     /**
@@ -82,20 +82,24 @@ public class OrdersAnalyticsService {
      * @return the average check as {@link BigDecimal}, or {@link BigDecimal#ZERO} if no delivered orders exist
      */
     public BigDecimal getAverageCheckForDeliveredOrders(List<Order> orders) {
-        List<BigDecimal> orderTotals = orders.stream()
-                .filter(order -> order.getStatus() == OrderStatus.DELIVERED)
-                .map(order -> order.getItems().stream()
-                        .map(item -> BigDecimal.valueOf(item.getQuantity()).multiply(BigDecimal.valueOf(item.getPrice())))
-                        .reduce(BigDecimal.ZERO, BigDecimal::add))
-                .filter(total -> total.compareTo(BigDecimal.ZERO) > 0)
-                .collect(Collectors.toList());
+        BigDecimal totalSum = BigDecimal.ZERO;
+        int deliveredOrdersCount = 0;
 
-        if (orderTotals.isEmpty()) {
+        for (Order order : orders) {
+            if (order.getStatus() == OrderStatus.DELIVERED && !order.getItems().isEmpty()) {
+                deliveredOrdersCount++;
+                BigDecimal orderTotal = order.getItems().stream()
+                    .map(item -> BigDecimal.valueOf(item.getQuantity()).multiply(item.getPrice()))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+                totalSum = totalSum.add(orderTotal);
+            }
+        }
+
+        if (deliveredOrdersCount == 0) {
             return BigDecimal.ZERO;
         }
 
-        BigDecimal sum = orderTotals.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
-        return sum.divide(BigDecimal.valueOf(orderTotals.size()), 2, RoundingMode.HALF_UP);
+        return totalSum.divide(BigDecimal.valueOf(deliveredOrdersCount), 2, RoundingMode.HALF_UP);
     }
 
     /**
