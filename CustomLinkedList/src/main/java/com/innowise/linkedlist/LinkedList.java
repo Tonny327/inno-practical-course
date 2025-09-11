@@ -58,39 +58,39 @@ public class LinkedList<T> {
    * @throws IndexOutOfBoundsException if index is out of range
    */
   public void add(int index, T value) {
-    if (index < 0 || index > size()) {
+    if (index < 0 || index > size) {
       throw new IndexOutOfBoundsException();
     }
     if (index == 0) {
       addFirst(value);
       return;
     }
-    if (index == size()) {
+    if (index == size) {
       addLast(value);
       return;
     }
 
-    Node<T> currentNode;
+    Node<T> nodeAfter;
     if (index < size / 2) {
-      currentNode = head;
+      nodeAfter = head;
       for (int i = 0; i < index; i++) {
-        currentNode = currentNode.next;
+        nodeAfter = nodeAfter.next;
       }
     } else {
-      currentNode = tail;
+      nodeAfter = tail;
       for (int i = size - 1; i > index; i--) {
-        currentNode = currentNode.prev;
+        nodeAfter = nodeAfter.prev;
       }
     }
 
     Node<T> newNode = new Node<>(value);
-    Node<T> previousNode = currentNode.prev;
+    Node<T> nodeBefore = nodeAfter.prev;
 
-    newNode.prev = previousNode;
-    newNode.next = currentNode;
+    newNode.prev = nodeBefore;
+    newNode.next = nodeAfter;
 
-    previousNode.next = newNode;
-    currentNode.prev = newNode;
+    nodeBefore.next = newNode;
+    nodeAfter.prev = newNode;
     size++;
   }
 
@@ -154,13 +154,13 @@ public class LinkedList<T> {
    * @throws IndexOutOfBoundsException if index is out of range
    */
   public T remove(int index) {
-    if (index < 0 || index >= size()) {
+    if (index < 0 || index >= size) {
       throw new IndexOutOfBoundsException();
     }
     if (index == 0) {
       return removeFirst();
     }
-    if (index == size() - 1) {
+    if (index == size - 1) {
       return removeLast();
     }
 
@@ -177,12 +177,14 @@ public class LinkedList<T> {
       }
     }
 
-
     Node<T> previousNode = currentNode.prev;
     Node<T> nextNode = currentNode.next;
 
     previousNode.next = nextNode;
     nextNode.prev = previousNode;
+
+    currentNode.next = null;
+    currentNode.prev = null;
     size--;
 
     return currentNode.value;
@@ -199,12 +201,16 @@ public class LinkedList<T> {
       throw new IllegalStateException("List is empty");
     }
     T value = head.value;
+    Node<T> nodeToRemove = head;
     head = head.next;
     if (head != null) {
       head.prev = null;
     } else {
       tail = null;
     }
+
+    nodeToRemove.next = null;
+    nodeToRemove.prev = null;
     size--;
     return value;
   }
@@ -220,12 +226,16 @@ public class LinkedList<T> {
       throw new IllegalStateException("List is empty");
     }
     T value = tail.value;
+    Node<T> nodeToRemove = tail;
     tail = tail.prev;
     if (tail != null) {
       tail.next = null;
     } else {
       head = null;
     }
+
+    nodeToRemove.next = null;
+    nodeToRemove.prev = null;
     size--;
     return value;
   }
@@ -238,7 +248,6 @@ public class LinkedList<T> {
   public int size() {
     return size;
   }
-
 
   /**
    * Compares this list to another for equality based on element values.
