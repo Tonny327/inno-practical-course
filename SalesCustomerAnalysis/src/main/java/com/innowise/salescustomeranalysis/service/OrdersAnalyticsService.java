@@ -82,24 +82,19 @@ public class OrdersAnalyticsService {
      * @return the average check as {@link BigDecimal}, or {@link BigDecimal#ZERO} if no delivered orders exist
      */
     public BigDecimal getAverageCheckForDeliveredOrders(List<Order> orders) {
-        BigDecimal totalSum = BigDecimal.ZERO;
-        int deliveredOrdersCount = 0;
+        List<BigDecimal> orderTotals = orders.stream()
+            .filter(order -> order.getStatus() == OrderStatus.DELIVERED && !order.getItems().isEmpty())
+            .map(order -> order.getItems().stream()
+                .map(item -> BigDecimal.valueOf(item.getQuantity()).multiply(item.getPrice()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add))
+            .collect(Collectors.toList());
 
-        for (Order order : orders) {
-            if (order.getStatus() == OrderStatus.DELIVERED && !order.getItems().isEmpty()) {
-                deliveredOrdersCount++;
-                BigDecimal orderTotal = order.getItems().stream()
-                    .map(item -> BigDecimal.valueOf(item.getQuantity()).multiply(item.getPrice()))
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-                totalSum = totalSum.add(orderTotal);
-            }
-        }
-
-        if (deliveredOrdersCount == 0) {
+        if (orderTotals.isEmpty()) {
             return BigDecimal.ZERO;
         }
 
-        return totalSum.divide(BigDecimal.valueOf(deliveredOrdersCount), 2, RoundingMode.HALF_UP);
+        BigDecimal sum = orderTotals.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+        return sum.divide(BigDecimal.valueOf(orderTotals.size()), 2, RoundingMode.HALF_UP);
     }
 
     /**
