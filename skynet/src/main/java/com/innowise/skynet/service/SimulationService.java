@@ -2,26 +2,51 @@ package com.innowise.skynet.service;
 
 import com.innowise.skynet.model.SimulationResult;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Service for running the robot war simulation between factions.
- * Manages the 100-day simulation where factions compete to build robot armies.
+ * <p>
+ * Manages the complete 100-day simulation where two factions ("World" and "Wednesday") 
+ * compete to build the largest robot army. The service coordinates the factory,
+ * factions, and simulation lifecycle.
+ * </p>
+ * <p>
+ * The simulation follows these phases:
+ * <ul>
+ * <li>Initialization: Creates coordinator, factory, and factions</li>
+ * <li>Execution: Runs all components in separate threads</li>
+ * <li>Completion: Determines winner and collects final statistics</li>
+ * </ul>
+ * </p>
  */
 @Getter
+@Setter
 public class SimulationService {
 
+  /** Simulation coordinator for thread synchronization. */
+  private SimulationCoordinator coordinator;
+  
+  /** Factory that produces robot parts. */
   private Factory factory;
+  
+  /** World faction competing in the simulation. */
   private Faction worldFaction;
+  
+  /** Wednesday faction competing in the simulation. */
   private Faction wednesdayFaction;
 
   /**
-   * Initializes the simulation with factory and factions.
+   * Initializes the simulation with coordinator, factory and factions.
+   * Creates all necessary components and sets up their relationships.
+   * Must be called before running the simulation.
    */
   public void initializeSimulation() {
-    factory = new Factory();
-    worldFaction = new Faction("World", factory);
-    wednesdayFaction = new Faction("Wednesday", factory);
+    coordinator = new SimulationCoordinator();
+    factory = new Factory(coordinator);
+    worldFaction = new Faction("World", 0, factory, coordinator);
+    wednesdayFaction = new Faction("Wednesday", 1, factory, coordinator);
   }
 
   /**
@@ -48,11 +73,12 @@ public class SimulationService {
       worldFaction.stop();
       wednesdayFaction.stop();
 
-      worldThread.join(1000);
-      wednesdayThread.join(1000);
+      worldThread.join();
+      wednesdayThread.join();
 
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
+      coordinator.stopSimulation();
       throw new RuntimeException("Simulation was interrupted", e);
     }
 
@@ -61,6 +87,8 @@ public class SimulationService {
 
   /**
    * Creates simulation result based on faction performance.
+   * Determines the winner by comparing robot counts and collects
+   * final inventories from both factions.
    *
    * @return simulation result with winner and statistics
    */

@@ -1,7 +1,7 @@
 package com.innowise.skynet.integration;
 
 import com.innowise.skynet.service.Factory;
-import com.innowise.skynet.service.Faction;
+import com.innowise.skynet.service.SimulationCoordinator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
@@ -11,107 +11,75 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Integration tests focusing on concurrency and thread safety.
+ * Integration tests
+ * <p>
+ * These tests verify that the factory handles concurrent access correctly:
+ * <ul>
+ * <li>Two threads simulating World and Wednesday factions accessing factory</li>
+ * <li>Thread-safe parts collection without race conditions</li>
+ * <li>Data integrity under concurrent parts collection</li>
+ * <li>Stress testing with multiple concurrent collectors</li>
+ * </ul>
+ * </p>
  */
 class ConcurrencyTest {
 
+  /**
+   * Tests that multiple factions can access the factory concurrently without issues.
+   * Verifies thread safety during concurrent parts collection.
+   * 
+   * @throws InterruptedException if the test is interrupted
+   */
   @Test
   @Timeout(15)
   void shouldHandleMultipleFactionsConcurrently() throws InterruptedException {
-    Factory factory = new Factory();
-    Faction faction1 = new Faction("Faction1", factory);
-    Faction faction2 = new Faction("Faction2", factory);
-    Faction faction3 = new Faction("Faction3", factory);
+    SimulationCoordinator coordinator = new SimulationCoordinator();
+    Factory factory = new Factory(coordinator);
 
-    CountDownLatch startLatch = new CountDownLatch(1);
-    CountDownLatch endLatch = new CountDownLatch(4);
+    factory.producePartsForTesting(10);
 
-    // Запускаем все в потоках
-    Thread factoryThread = new Thread(() -> {
-      try {
-        startLatch.await();
-        factory.run();
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-      } finally {
-        endLatch.countDown();
-      }
-    });
-
-    Thread[] factionThreads = {
+    CountDownLatch latch = new CountDownLatch(2);
+    Thread[] collectorThreads = {
         new Thread(() -> {
           try {
-            startLatch.await();
-            faction1.run();
-          } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+            factory.collectParts(2, 0);
           } finally {
-            endLatch.countDown();
+            latch.countDown();
           }
         }),
         new Thread(() -> {
           try {
-            startLatch.await();
-            faction2.run();
-          } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+            factory.collectParts(2, 1);
           } finally {
-            endLatch.countDown();
-          }
-        }),
-        new Thread(() -> {
-          try {
-            startLatch.await();
-            faction3.run();
-          } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-          } finally {
-            endLatch.countDown();
+            latch.countDown();
           }
         })
     };
 
-    factoryThread.start();
-    for (Thread thread : factionThreads) {
+    for (Thread thread : collectorThreads) {
       thread.start();
     }
 
+    latch.await(5, TimeUnit.SECONDS);
 
-    startLatch.countDown();
-
-
-    Thread.sleep(2000);
-
-
+    assertThat(factory.getAvailablePartsCount()).isGreaterThanOrEqualTo(0);
+    
     factory.stop();
-    faction1.stop();
-    faction2.stop();
-    faction3.stop();
-
-
-    endLatch.await(5, TimeUnit.SECONDS);
-
-    int totalRobots = faction1.getCompletedRobots() +
-        faction2.getCompletedRobots() +
-        faction3.getCompletedRobots();
-
-    assertThat(totalRobots).isGreaterThanOrEqualTo(0);
-
-    factoryThread.interrupt();
-    for (Thread thread : factionThreads) {
-      thread.interrupt();
-    }
   }
 
+  /**
+   * Tests that parts collection does not have race conditions.
+   * Verifies that concurrent collection operations maintain data integrity.
+   * 
+   * @throws InterruptedException if the test is interrupted
+   */
   @Test
   @Timeout(10)
   void shouldNotHaveRaceConditionsInPartCollection() throws InterruptedException {
-    Factory factory = new Factory();
+    SimulationCoordinator coordinator = new SimulationCoordinator();
+    Factory factory = new Factory(coordinator);
 
-    Thread factoryThread = new Thread(factory);
-    factoryThread.start();
-
-    Thread.sleep(1000);
+    factory.producePartsForTesting(20);
 
     Thread[] collectors = new Thread[5];
     int[] collected = new int[5];
@@ -132,10 +100,15 @@ class ConcurrencyTest {
     }
 
     factory.stop();
-    factoryThread.interrupt();
 
     for (int count : collected) {
       assertThat(count).isGreaterThanOrEqualTo(0);
     }
+
+    int totalCollected = 0;
+    for (int count : collected) {
+      totalCollected += count;
+    }
+    assertThat(totalCollected).isLessThanOrEqualTo(20);
   }
 }

@@ -9,9 +9,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for SimulationResult class.
+ * <p>
+ * Tests verify the proper creation and access of simulation results including:
+ * <ul>
+ * <li>Correct winner determination</li>
+ * <li>Accurate robot counts for both factions</li>
+ * <li>Proper inventory handling</li>
+ * </ul>
+ * </p>
  */
 class SimulationResultTest {
 
+  /**
+   * Tests that SimulationResult correctly stores and provides access to all simulation data.
+   */
   @Test
   void shouldCreateResultCorrectly() {
     Map<RobotPart, Integer> worldInventory = new EnumMap<>(RobotPart.class);

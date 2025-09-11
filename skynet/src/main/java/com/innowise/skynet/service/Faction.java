@@ -4,29 +4,84 @@ import com.innowise.skynet.model.RobotPart;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Faction that collects robot parts and builds robots.
- * Each faction can carry no more than 5 parts per night.
+ * Faction that collects robot parts and builds robots in the SkyNet simulation.
+ * <p>
+ * Each faction operates in a separate thread and follows a day/night cycle:
+ * <ul>
+ * <li>Day: waiting for factory to produce parts</li>
+ * <li>Night: collecting parts (up to 5 per night) and building robots</li>
+ * </ul>
+ * </p>
+ * <p>
+ * A faction can collect no more than 5 parts per night. To create a robot,
+ * one part of each type is required (HEAD, TORSO, HAND, FEET).
+ * </p>
  */
 public class Faction implements Runnable {
-  private static final int MAX_PARTS_PER_NIGHT = 5;
-
-  private final String name;
-  private final Factory factory;
-  private final Map<RobotPart, Integer> inventory;
-  private int completedRobots;
-  private volatile boolean running;
 
   /**
-   * Creates a new Faction with the given name and factory reference.
-   *
-   * @param name the name of the faction
-   * @param factory the factory to collect parts from
+   * Logger for this class.
    */
-  public Faction(String name, Factory factory) {
+  private static final Logger log = LoggerFactory.getLogger(Faction.class);
+
+  /**
+   * Maximum number of parts a faction can collect per night.
+   */
+  private static final int MAX_PARTS_PER_NIGHT = 5;
+
+  /**
+   * Name of the faction.
+   */
+  private final String name;
+
+  /**
+   * Unique identifier for fair distribution among factions.
+   */
+  private final int factionId;
+
+  /**
+   * Factory reference for collecting parts.
+   */
+  private final Factory factory;
+
+  /**
+   * Simulation coordinator for synchronization.
+   */
+  private final SimulationCoordinator coordinator;
+
+  /**
+   * Current inventory of robot parts.
+   */
+  private final Map<RobotPart, Integer> inventory;
+
+  /**
+   * Number of completed robots.
+   */
+  private int completedRobots;
+
+  /**
+   * Flag indicating if the faction is running.
+   */
+  private volatile boolean running;
+
+
+  /**
+   * Creates a new Faction with the given name, factory reference and coordinator.
+   *
+   * @param name        the name of the faction
+   * @param factionId   unique faction ID for fair distribution
+   * @param factory     the factory to collect parts from
+   * @param coordinator simulation coordinator for synchronization
+   */
+  public Faction(String name, int factionId, Factory factory, SimulationCoordinator coordinator) {
     this.name = name;
+    this.factionId = factionId;
     this.factory = factory;
+    this.coordinator = coordinator;
     this.inventory = new EnumMap<>(RobotPart.class);
     this.completedRobots = 0;
     this.running = true;
@@ -36,27 +91,35 @@ public class Faction implements Runnable {
     }
   }
 
+  /**
+   * Main execution method for the faction thread. Follows the day/night cycle until simulation
+   * ends.
+   *
+   * @throws RuntimeException if the thread is interrupted
+   */
   @Override
   public void run() {
     try {
-      while (running && factory.getCurrentDay() < 100) {
-        Thread.sleep(120);
+      while (coordinator.isSimulationRunning()) {
+        coordinator.waitForDayEnd();
 
-        if (factory.getCurrentDay() < 100) {
-          collectPartsFromFactory();
-          buildRobots();
-        }
+        collectPartsFromFactory();
+        buildRobots();
+
+        coordinator.waitForNightEnd();
       }
+      log.info("Faction {} finished work. Robots: {}", name, completedRobots);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }
   }
 
   /**
-   * Collects parts from the factory during night time.
+   * Collects parts from the factory during night time with fair distribution. Uses the faction's
+   * unique ID to ensure fair access to factory parts.
    */
   private void collectPartsFromFactory() {
-    List<RobotPart> collectedParts = factory.collectParts(MAX_PARTS_PER_NIGHT);
+    List<RobotPart> collectedParts = factory.collectParts(MAX_PARTS_PER_NIGHT, factionId);
 
     for (RobotPart part : collectedParts) {
       inventory.put(part, inventory.get(part) + 1);
@@ -64,7 +127,8 @@ public class Faction implements Runnable {
   }
 
   /**
-   * Builds complete robots using available parts.
+   * Builds complete robots using available parts. Determines the maximum number of robots that can
+   * be built based on the minimum count of any part type in inventory.
    */
   private void buildRobots() {
     int robotsToBuild = Integer.MAX_VALUE;
