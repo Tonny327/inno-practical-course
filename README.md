@@ -1,21 +1,29 @@
-# Sales Customer Analysis
+# CustomLinkedList
 
-A Java project for analyzing customer orders and sales data.  
-Provides methods to calculate total income, find the most popular products, compute average checks, and identify customers with high order counts.
-пше 
-## Structure
-- **model** – data models and enums
-- **service** – business logic and analytics
-- **util** – test data generation
-- **test** – unit tests with JUnit 5
+A Java implementation of a doubly linked list supporting basic operations such as insertion, deletion, search, and indexed access.
 
-## Technologies
-- Java 21
-- Maven
-- JUnit 5
-- Lombok
-- Google Java Style
+## Project Structure
 
-## How to Run Tests
+- `LinkedList.java` — core implementation of the doubly linked list
+- `LinkedListTest.java` — unit tests written with JUnit 5
+- `pom.xml` — Maven configuration file
+
+## Key Features
+
+- `addFirst(T value)` — insert at the beginning
+- `addLast(T value)` — insert at the end
+- `add(int index, T value)` — insert at a specific index
+- `removeByValue(T value)` — remove by value
+- `remove(int index)` — remove by index
+- `get(int index)` — access by index
+- `getFirst()` / `getLast()` — access first or last element
+- `size()` — current size of the list
+- `toString()` — readable string representation of the list
+
+## Testing
+
+To run the tests:
+
 ```bash
-mvn clean test
+cd CustomLinkedList
+mvn test

@@ -1,8 +1,9 @@
 # IDE files
-.idea/
+../.idea/
 *.iml
 *.iws
 *.ipr
+*.class
 out/
 .vscode/
 
@@ -10,7 +11,7 @@ out/
 /target/
 target/surefire-reports/
 target/maven-status/
-target/generated-sources/
+SalesCustomerAnalysis/target/generated-sources/
 target/generated-test-sources/
 
 # Logs and temp
@@ -24,5 +25,3 @@ Thumbs.db
 
 # Maven wrapper (if unused)
 .mvn/
-
-
